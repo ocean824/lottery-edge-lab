@@ -1,38 +1,62 @@
 # Lottery Edge Lab
 
-**Lottery Edge Lab** is a private, research-oriented Python repository for ingesting draw history across lottery sources, ranking candidate combinations, estimating collision risk, and generating wheel-style ticket portfolios. The project is intentionally framed as a **statistical edge** tool rather than a deterministic prophecy engine. The underlying research reviewed during setup indicates that the most defensible lottery advantages tend to come from **expected-value analysis, reduced ticket collisions, and structured coverage**, not from a verified ability to forecast a fair random draw with certainty.[1] [2] [3] [4]
+**Lottery Edge Lab** is a private, research-oriented lottery analytics repository that now supports both a **command-line workflow** and a **desktop executable application**. Its purpose is to ingest lottery draw history, normalize data from official or structured sources, compute descriptive statistical signals, rank combinations with transparent heuristics, generate quick picks and wheel-style portfolios, and present those outputs through a user-friendly application interface. The project is intentionally framed as an **analysis and entertainment tool**, not as a guaranteed winning-number engine. The academic and official materials reviewed during setup consistently support a more careful conclusion: if any practical edge exists, it is more likely to come from structured coverage, collision reduction, and expected-value awareness than from proving deterministic foresight over a fair random draw.[1] [2] [3] [4]
 
 ## Why this repository exists
 
-Many lottery systems advertise hot numbers, cold numbers, overdue numbers, AI prediction, delta systems, and wheel generators. The research picture is more nuanced. Official national and state archives make historical draw data available, and at least some government data portals expose machine-readable datasets for lottery results.[5] [6] [7] [8] That means serious analysis is possible. However, the most rigorous sources reviewed for this project suggest that practical edge is more plausibly created by improving **ticket selection strategy** and **portfolio structure** than by claiming certain foresight over the next draw.[1] [2] [3]
+The market for lottery software is full of claims about AI prediction, secret formulas, hot numbers, overdue numbers, and mathematically inevitable picks. Those claims are often stronger than the underlying evidence. At the same time, official lottery archives, state open-data portals, and commercial results providers make it possible to build serious historical-analysis tooling around real draw histories.[5] [6] [7] [8] [9] This repository exists to turn that raw data availability into a cleaner, safer, and more defensible product architecture.
 
-This repository is therefore designed to do four things well. First, it retrieves and normalizes historical lottery data. Second, it derives pattern-based features from real draw history. Third, it penalizes combinations that look unusually popular or likely to be shared. Fourth, it converts ranked combinations into more disciplined ticket sets and abbreviated wheels.
+The upgraded version therefore focuses on four product goals. First, it makes draw history ingestion reproducible. Second, it exposes analysis features that users actually expect, such as results dashboards, historical lookups, frequency views, quick picks, smart picks, wheel generation, and jackpot context. Third, it places those features inside a desktop application that can be packaged as an executable file. Fourth, it surrounds the product with explicit compliance language so the user-facing experience remains aggressive in utility without becoming misleading in its claims.
 
 ## Research grounding
 
-The repository design follows several research-backed observations.
+The repository design follows several research-backed observations and practical source findings.
 
-| Observation | Implication for the repository |
+| Observation | Product implication |
 | --- | --- |
-| Lottery archives exist across official national pages, state pages, and public data portals.[5] [6] [7] [8] | The codebase needs connector-style ingestion and a canonical schema. |
-| Expected value can improve when jackpot size is high enough and ticket collisions are reduced.[1] [2] | The system should include collision-aware ranking and expected-value oriented logic. |
-| Lottery players choose numbers non-uniformly, often favoring dates, meaningful numbers, and certain layout positions.[3] | The system should penalize date-heavy or otherwise popular-looking combinations. |
-| Wheeling is best understood as coverage optimization rather than draw prediction.[4] | The system should include wheel generation, but document it as portfolio structure. |
+| Official archives and state data portals publish real historical lottery results.[5] [6] [7] [8] | The application should use connector-style ingestion and a canonical schema. |
+| Expected value can change under some jackpot conditions, but ticket collisions matter.[1] [2] | The application should include jackpot context and collision-aware ranking rather than mystical prediction claims. |
+| Lottery players choose numbers non-uniformly, often favoring dates or familiar patterns.[3] | The application should penalize collision-prone combinations and explain that logic clearly. |
+| Wheeling is structurally useful as a coverage method, not proof of future draw prediction.[4] | The application should include wheel-building tools while describing them accurately. |
+| Commercial providers advertise broad all-state lottery coverage, stats, and historical feeds.[9] | The architecture should remain pluggable so optional broad-coverage connectors can be added later. |
 
 > “We find that choice is far from uniform, and exhibits some familiar and some new tendencies and biases. Players favor personally meaningful and situationally available numbers...” — *Number preferences in lotteries*[3]
 
 > “Thus, the expected value of a lottery ticket decreases as the probability of collisions ... increase.” — *Maximizing the Expected Value of a Lottery Ticket: How to Sell and When to Buy*[1]
 
-## Current scope
+## Executable application scope
 
-Version 0.1.0 focuses on **U.S. draw lotteries** with an extensible source-adapter architecture. The repository currently includes live connectors for:
+The repository has been upgraded so it can function as an **executable desktop application** rather than only as a backend toolkit. The new application is designed to resemble the workflow categories users expect from commercial lottery-analysis tools while using more accurate product language and stronger disclaimers.
 
-| Game | Initial source strategy | Source type |
+| Feature area | Desktop application behavior |
+| --- | --- |
+| Jurisdiction and game browser | Browse national and state-oriented games from a registry-driven catalog |
+| Latest results | View the latest normalized draw history records for the selected game |
+| Smart Pick | Generate statistically ranked combinations using transparent heuristics |
+| Quick Pick | Generate valid random combinations under the selected game rules |
+| Frequency Chart | View top historical frequencies and export a chart image |
+| Prize Matrix | Inspect game-structure metadata and prize-context notes |
+| Jackpot Analysis | View combinatorial jackpot odds context and rule-aware notes |
+| Wheel Builder | Generate abbreviated wheel-style ticket sets from a number pool |
+| Compliance notices | See persistent short disclaimers and a full legal notice dialog |
+
+## Current game coverage
+
+Version 0.2.0 expands the registry beyond the original national-game prototype. Two games currently have live ingest connectors in the repository, while several additional games are represented in the registry so the application can present them, generate valid picks, and support future data connectors.
+
+| Game | Coverage level | Current source strategy |
 | --- | --- | --- |
-| Mega Millions | New York open-data CSV, with official-page fallback | Official machine-readable data plus official archive fallback |
-| Powerball | North Carolina official archive page | Official state archive |
+| Powerball | Live historical sync | Official state archive ingestion |
+| Mega Millions | Live historical sync | New York open-data CSV with official archive fallback |
+| New York Lotto | Registry and rules support | Ready for manual or future source connector |
+| Cash4Life | Registry and rules support | Ready for manual or future source connector |
+| Take 5 Midday | Registry and rules support | Ready for manual or future source connector |
+| Take 5 Evening | Registry and rules support | Ready for manual or future source connector |
+| Pick 10 | Limited informational support | Ready for future source connector |
+| Numbers 3 Midday | Registry and rules support | Ready for manual or future source connector |
+| Numbers 3 Evening | Registry and rules support | Ready for manual or future source connector |
 
-The architecture is intentionally broader than the current adapter count. It is structured so you can continue adding local, municipal, state, and national lotteries by creating new source adapters and new game definitions.
+This means the product architecture is broader than the currently automated ingestion count. That is intentional. The software is now arranged so that the UI, compliance layer, scoring pipeline, and packaging pipeline do not have to be redesigned each time a new state or city lottery source is added.
 
 ## Repository layout
 
@@ -41,12 +65,16 @@ lottery-edge-lab/
 ├── README.md
 ├── pyproject.toml
 ├── requirements.txt
-├── .gitignore
+├── build_desktop.sh
 ├── docs/
-│   └── architecture.md
+│   ├── architecture.md
+│   └── executable_app_plan.md
 ├── src/lottery_edge_lab/
-│   ├── __init__.py
 │   ├── cli.py
+│   ├── desktop_app.py
+│   ├── services.py
+│   ├── charts.py
+│   ├── compliance.py
 │   ├── config.py
 │   ├── ingest.py
 │   ├── registry.py
@@ -54,8 +82,7 @@ lottery-edge-lab/
 │   ├── features/
 │   ├── scoring/
 │   ├── optimization/
-│   ├── backtest/
-│   └── utils/
+│   └── backtest/
 ├── data/
 │   ├── raw/
 │   ├── normalized/
@@ -66,23 +93,60 @@ lottery-edge-lab/
 
 ## Methodology
 
-The workflow is organized into three analytical layers.
+The analytical workflow is organized into several complementary layers.
 
-### 1. Historical-pattern ranking
+### Historical-pattern ranking
 
-The ranking engine computes descriptive features from historical draws, including single-number frequency, pair co-occurrence, recency pressure, odd-even balance, sum ranges, spacing, and spread. These features do **not** prove forecastability. They are used as a disciplined ranking heuristic that can be backtested.
+The ranking engine computes descriptive features from historical draws, including single-number frequency, pair co-occurrence, recency pressure, odd-even balance, sum ranges, spacing, and spread. Those features do **not** prove that future fair draws become predictable. They are used as a transparent ranking heuristic that can be backtested and revised.
 
-### 2. Collision-risk scoring
+### Collision-risk scoring
 
-The collision model penalizes combinations that are more likely to be popular among other players. In the current implementation, it downranks tickets that are date-heavy, excessively concentrated in the central range, strongly repetitive in terminal digits, or otherwise visually conventional. This is a direct implementation of the player-preference finding that number choice is not uniform.[3]
+The collision model downranks combinations that are more likely to be commonly chosen by other players. In the present implementation, it penalizes tickets that are date-heavy, excessively centered, repetitive in terminal digits, or visually conventional. That design is directly aligned with the research finding that lottery-number choice is not uniform across human players.[3]
 
-### 3. Portfolio and wheel optimization
+### Portfolio and wheel optimization
 
-The optimizer converts ranked candidates into more diversified tickets or into abbreviated wheel-style structures. This reflects the mathematically sensible core of wheeling systems: they help structure coverage once a number pool has already been selected.[4]
+The optimizer converts ranked candidates into diversified ticket sets or abbreviated wheel-style structures. This reflects the defensible mathematical core of wheeling systems: they can improve coverage efficiency once a number pool has already been selected, even though they do not change the official draw odds.[4]
 
-## Command-line interface
+### Jackpot context and informational game views
 
-After dependencies are installed, the repository can be run either as a module or through an installed command entry point.
+The desktop application also computes rule-based combination counts and presents prize-context notes. These views are intended to help users understand the scale of a game rather than to promise that high jackpots alone create a favorable outcome. Official game rules and prize matrices still need to be verified at the source.[1] [2] [5] [6]
+
+## Desktop application
+
+The repository now contains a desktop entry point in `src/lottery_edge_lab/desktop_app.py`. The application uses a simple button-forward interface so users can choose a jurisdiction, pick a game, sync data, inspect results, generate smart picks, create quick picks, export a frequency chart, and view a compliance notice.
+
+The desktop app is positioned to satisfy the user goal of a single executable file that ingests data and runs the computations internally. In practice, the app still depends on live internet access for source syncing unless a historical cache already exists locally. Once synced, the normalized datasets are stored under `data/normalized/`, and exported chart files are written under `data/processed/charts/`.
+
+## Compliance and disclaimer framework
+
+A commercial-facing lottery application needs more than feature parity. It also needs disciplined legal positioning. This repository therefore includes a dedicated compliance module and presents a persistent short disclaimer in the desktop window plus a full legal notice dialog.
+
+| Compliance principle | Implementation in this repository |
+| --- | --- |
+| Do not imply guaranteed wins | The app describes outputs as ranked combinations, historical analysis, or random picks |
+| Do not imply altered official odds | The disclaimer explicitly states that the software cannot change official game odds |
+| Do not treat jackpots or charts as promises | Jackpot and chart views are presented as informational only |
+| Require source verification | The app instructs users to verify results, rules, prizes, and odds with official lottery authorities |
+| Avoid misleading income language | The disclaimer states that winnings and earnings are not promised, expected, or typical |
+
+The resulting language is more defensible than phrases such as “cheat the lottery,” “most likely winning numbers,” or “get rich,” which appeared in the reference material but should not be reused in a serious production product.
+
+## Installation
+
+Clone the repository, install the runtime dependencies, and export the source path.
+
+```bash
+git clone <your-private-repo-url>
+cd lottery-edge-lab
+python3.11 -m pip install -r requirements.txt
+export PYTHONPATH=src
+```
+
+If your environment supports local project installation, you may also run `python3.11 -m pip install .`. The direct `PYTHONPATH=src` workflow is still documented as the default because it remains the most portable across restricted environments.
+
+## Running the command-line workflow
+
+The command-line entry point is still available and remains useful for scripted use.
 
 | Command | Purpose | Example |
 | --- | --- | --- |
@@ -92,45 +156,59 @@ After dependencies are installed, the repository can be run either as a module o
 | `backtest` | Run a rolling backtest on ranked candidates | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli backtest --game megamillions --pool-size 10 --top-n 10 --train-window 30` |
 | `wheel` | Build an abbreviated wheel from a custom number pool | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli wheel --pool 3,7,12,18,23,29,33 --ticket-size 5 --limit 12` |
 
-## Installation
+## Running the desktop application
 
-Clone the repository and install the runtime dependencies.
+Launch the desktop interface with either the module path or the installed script.
 
 ```bash
-git clone <your-private-repo-url>
-cd lottery-edge-lab
-python3.11 -m pip install -r requirements.txt
-export PYTHONPATH=src
+PYTHONPATH=src python3.11 -m lottery_edge_lab.desktop_app
 ```
 
-If your environment supports package installation for local projects, you may also install the repository itself with `python3.11 -m pip install .`. The direct `PYTHONPATH=src` workflow is documented as the default because it is the most portable across locked-down environments.
+or
+
+```bash
+PYTHONPATH=src lottery-edge-desktop
+```
+
+The application will open a desktop window that includes the game browser, actions panel, results tabs, smart-pick view, quick-pick view, prize matrix, jackpot analysis, wheel builder, and compliance notice.
+
+## Building the executable
+
+The repository includes a build helper for creating a packaged executable.
+
+```bash
+chmod +x build_desktop.sh
+./build_desktop.sh
+```
+
+This script uses PyInstaller to build a one-file desktop executable named `LotteryEdgeLab`. The output is written to `dist/LotteryEdgeLab`.
+
+Because GUI packaging can be operating-system specific, you should build the executable on the same platform family where you intend to distribute it. If you want Windows `.exe` output specifically, run the same build process inside a Windows environment.
 
 ## Example workflow
 
-The most useful initial workflow is to sync a game, inspect top-ranked candidates, and then generate a more diversified ticket set.
+A practical first run uses the desktop app after syncing a live-supported game.
 
 ```bash
 PYTHONPATH=src python3.11 -m lottery_edge_lab.cli sync --game megamillions --limit 80
-PYTHONPATH=src python3.11 -m lottery_edge_lab.cli rank --game megamillions --pool-size 10 --top 10
-PYTHONPATH=src python3.11 -m lottery_edge_lab.cli recommend --game megamillions --pool-size 10 --ticket-count 5 --max-overlap 2
+PYTHONPATH=src python3.11 -m lottery_edge_lab.desktop_app
 ```
 
-If you already have a custom number pool and want structure rather than a fresh ranking pass, use the wheel command.
+Inside the application, choose a supported game, refresh the views, inspect the latest results, review the frequency panel, generate smart picks, and export the frequency chart if needed.
 
-```bash
-PYTHONPATH=src python3.11 -m lottery_edge_lab.cli wheel --pool 3,7,12,18,23,29,33 --ticket-size 5 --limit 10
-```
+If you prefer a scripted workflow, sync and rank from the command line first, then use the desktop interface for presentation and additional actions.
 
-## Example local validation snapshot
+## Validation snapshot
 
-Using live-source histories pulled during repository setup, the current prototype produced the following **illustrative** rolling backtest outputs.
+The upgraded repository was validated in three practical ways during development. First, the existing smoke-test suite continued to pass after the executable application modules were added. Second, the new desktop entry point imported successfully after the GUI runtime was installed in the sandbox. Third, the chart helper successfully exported a real frequency chart image after syncing live Mega Millions history.
 
-| Game | Historical rows used | Train window | Mean best overlap within top-N | Top-N hit rate for 3+ matches |
-| --- | --- | --- | --- | --- |
-| Mega Millions | 80-row sync with 50 evaluation rows | 30 | 0.88 | 0.02 |
-| Powerball | Smaller archive sample with 15 evaluation rows | 15 | 1.47 | 0.20 |
-
-These numbers should be read carefully. They are **example prototype diagnostics**, not evidence of a verified winning-number prediction system. The Powerball sample is materially smaller than the Mega Millions sample, and both results depend on the current candidate-pool generation strategy and the limited prototype feature set.
+| Validation item | Result |
+| --- | --- |
+| Existing smoke tests | Passed |
+| Desktop application import | Passed |
+| Quick-pick service smoke test | Passed |
+| Jackpot-context computation | Passed |
+| Frequency-chart export | Passed |
 
 ## Limitations
 
@@ -138,33 +216,35 @@ The repository is deliberately explicit about its limits.
 
 | Limitation | Practical meaning |
 | --- | --- |
-| Fair drawings remain close to random | No module here can honestly guarantee future winning numbers |
-| Current adapters are not yet exhaustive | The architecture supports many lotteries, but each new source still needs a connector |
-| Historical features may overfit | Backtests are necessary and should be expanded before trust is increased |
+| Fair drawings remain close to random | No module in this repository can honestly guarantee future winning numbers |
+| Current live adapters are not exhaustive | The application architecture is broad, but not every local or city lottery source has been connected yet |
+| Some games are informational only for now | Registry coverage is broader than fully automated ingest coverage |
+| Historical features may overfit | Backtests and cross-validation should be expanded before confidence is increased |
 | Collision-risk modeling is approximate | It uses behavioral heuristics, not proprietary population-scale ticket-purchase data |
-| Wheeling improves structure, not official draw odds | It can improve coverage efficiency without changing lottery mathematics |
+| Executable packaging is platform-specific | A binary should generally be built on the target operating system |
 
-## Extending the repository
+## Next expansion path
 
-To broaden the repository toward the user’s full vision of covering the smallest local drawings through large national jackpots, the next engineering steps are straightforward. Add more game definitions to the registry. Implement new source adapters for each jurisdiction. Normalize them into the same schema. Then expand the scoring pipeline with game-specific features and better backtests. The current codebase is already structured around that path.
+If you want the product to move closer to full all-state and local-lottery coverage, the next steps are clear. Add more game definitions to the registry. Implement new source adapters for each jurisdiction. Normalize them into the existing schema. Add official prize-matrix loaders where possible. Optionally add support for a licensed broad-coverage feed if you secure access to a provider that covers all states and territories.[9] The current repository structure is now prepared for that trajectory.
 
 ## Documentation
 
-The architectural and product-scope decisions are documented in [`docs/architecture.md`](docs/architecture.md).
+The architectural and product-scope decisions are documented in [`docs/architecture.md`](docs/architecture.md) and [`docs/executable_app_plan.md`](docs/executable_app_plan.md).
 
 ## TL;DR
 
-If you want to get this running quickly, use the following sequence.
+If you want to get the upgraded version running quickly, use the following sequence.
 
 | Step | Action |
 | --- | --- |
-| 1 | Clone the private repository |
-| 2 | Install dependencies with `python3.11 -m pip install -r requirements.txt` and set `PYTHONPATH=src` |
-| 3 | Run `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli sync --game megamillions --limit 80` |
-| 4 | Run `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli rank --game megamillions --pool-size 10 --top 10` |
-| 5 | Run `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli recommend --game megamillions --pool-size 10 --ticket-count 5` |
-| 6 | Use `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli wheel` when you already have a preferred number pool |
-| 7 | Add new adapters and game definitions to expand toward more local and state lotteries |
+| 1 | Clone the private repository and install dependencies with `python3.11 -m pip install -r requirements.txt` |
+| 2 | Export `PYTHONPATH=src` |
+| 3 | Sync a live-supported game such as Mega Millions with `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli sync --game megamillions --limit 80` |
+| 4 | Launch the app with `PYTHONPATH=src python3.11 -m lottery_edge_lab.desktop_app` |
+| 5 | In the app, choose a game, review the disclaimer, and inspect latest results |
+| 6 | Use **Smart Pick**, **Quick Pick**, **Frequency Chart**, **Prize Matrix**, **Jackpot Analysis**, and **Wheel Builder** as needed |
+| 7 | When ready to package it, run `chmod +x build_desktop.sh && ./build_desktop.sh` to generate the desktop executable |
+| 8 | Add more source adapters over time to expand from national games toward broader state and local coverage |
 
 ## References
 
@@ -176,3 +256,4 @@ If you want to get this running quickly, use the following sequence.
 [6]: https://www.megamillions.com/winning-numbers/previous-drawings.aspx "Previous Drawings | Mega Millions"
 [7]: https://nclottery.com/powerball-past-draws "Powerball - Past Draws | NC Education Lottery"
 [8]: https://catalog.data.gov/dataset/lottery-mega-millions-winning-numbers-beginning-2002 "Lottery Mega Millions Winning Numbers: Beginning 2002"
+[9]: https://downtack.com/en/us-lottery-api.html "US Lotteries API & widgets"
