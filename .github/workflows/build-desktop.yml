@@ -1,0 +1,58 @@
+name: Build Desktop Artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: LotteryEdgeLab-windows
+            artifact_path: dist/LotteryEdgeLab.exe
+            python: '3.11'
+          - os: macos-latest
+            artifact_name: LotteryEdgeLab-macos
+            artifact_path: dist/LotteryEdgeLab
+            python: '3.11'
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build desktop binary
+        shell: bash
+        run: |
+          pyinstaller \
+            --name LotteryEdgeLab \
+            --onefile \
+            --windowed \
+            --clean \
+            --noconfirm \
+            --paths src \
+            --collect-all customtkinter \
+            src/lottery_edge_lab/desktop_app.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
