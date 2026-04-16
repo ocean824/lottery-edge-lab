@@ -148,7 +148,9 @@ The desktop application also computes rule-based combination counts and presents
 
 ## Desktop application
 
-The repository now contains a desktop entry point in `src/lottery_edge_lab/desktop_app.py`. The application uses a simple button-forward interface so users can choose a jurisdiction, pick a game, sync data, inspect results, generate smart picks, create quick picks, export a frequency chart, review strategy profiles, and view a compliance notice.
+The repository now contains a desktop entry point in `src/lottery_edge_lab/desktop_app.py`. The desktop experience has been redesigned around a **dark, modern, more polished interface** rather than the older utility-style layout. It now uses a dashboard shell with a left game browser, a central analytics workspace, featured number and pick cards, a cleaner tabbed results area, and a right-side insight rail for compliance and jackpot context.
+
+The goal of the redesign is not only to preserve the existing workflows, but to make the application feel substantially more approachable and product-like. Users can now choose a jurisdiction, pick a game, sync data, inspect results, generate smart picks, create quick picks, export a frequency chart, review strategy profiles, and view compliance notices inside a more visually organized interface.
 
 The desktop app is positioned to satisfy the user goal of a single executable file that ingests data and runs the computations internally. In practice, the app still depends on live internet access for source syncing unless a historical cache already exists locally. Once synced, the normalized datasets are stored under `data/normalized/`, and exported chart files are written under `data/processed/charts/`.
 
@@ -207,20 +209,20 @@ or
 PYTHONPATH=src lottery-edge-desktop
 ```
 
-The application will open a desktop window that includes the game browser, actions panel, results tabs, a **Likely Numbers** view, smart-pick view, quick-pick view, prize matrix, jackpot analysis, strategy profile view, wheel builder, and compliance notice.
+The redesigned application opens with a modern dark interface and includes a left-side game browser, a control deck, summary cards, featured likely-number cards, featured smart-pick cards, a tabbed analytics workspace, jackpot context, and persistent compliance messaging. The core user workflows remain the same, but the presentation is more product-oriented and easier to scan than the prior plain-text utility layout.
 
 ## Building the executable
 
-The repository includes a build helper for creating a packaged executable.
+The repository includes a build helper for creating a packaged executable on the local machine where you are building.
 
 ```bash
 chmod +x build_desktop.sh
 ./build_desktop.sh
 ```
 
-This script uses PyInstaller to build a one-file desktop executable named `LotteryEdgeLab`. The output is written to `dist/LotteryEdgeLab`.
+This script uses PyInstaller to build a one-file desktop executable named `LotteryEdgeLab`. When run in Linux, the output is written to `dist/LotteryEdgeLab` as a Linux binary.
 
-Because GUI packaging is platform-specific, a production Windows `.exe` should generally be built on Windows, and a production macOS app bundle should generally be built on macOS. The sandbox build created during development was a Linux binary.
+Because PyInstaller is not a cross-compiler, native Windows and macOS artifacts should be built on Windows and macOS respectively.[18] The repository now includes a GitHub Actions workflow at `.github/workflows/build-desktop.yml` that can build native Windows and macOS desktop artifacts on hosted runners and upload them as downloadable workflow artifacts.
 
 ## Example workflow
 
@@ -242,11 +244,13 @@ The upgraded repository was validated in practical ways during development, incl
 | Validation item | Result |
 | --- | --- |
 | Existing smoke tests | Passed |
-| Desktop application import | Passed |
+| Desktop application import | Passed after modern UI redesign |
 | Weighted likely-number service smoke test | Passed |
 | Heuristic profile service smoke test | Passed |
 | AC-value feature computation | Passed |
 | Frequency-chart export | Passed in prior executable-upgrade validation |
+| CustomTkinter dependency load | Passed locally |
+| Local Linux packaging helper | Updated for CustomTkinter-aware PyInstaller build |
 
 ## Limitations
 
@@ -280,10 +284,11 @@ If you want to get the upgraded version running quickly, use the following seque
 | 2 | Export `PYTHONPATH=src` |
 | 3 | Sync a live-supported game such as Mega Millions with `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli sync --game megamillions --limit 80` |
 | 4 | Launch the app with `PYTHONPATH=src python3.11 -m lottery_edge_lab.desktop_app` |
-| 5 | In the app, choose a game, pick a heuristic profile, and review the disclaimer |
-| 6 | Use **Likely Numbers**, **Smart Pick**, **Quick Pick**, **Frequency Chart**, **Prize Matrix**, **Jackpot Analysis**, **Strategy Profiles**, and **Wheel Builder** as needed |
-| 7 | When ready to package it, run `chmod +x build_desktop.sh && ./build_desktop.sh` to generate the desktop executable |
-| 8 | Add more source adapters over time to expand from national games toward broader state and local coverage |
+| 5 | In the redesigned UI, choose a game, pick a heuristic profile, sync data, and review the disclaimer |
+| 6 | Use **Likely Numbers**, **Smart Pick**, **Quick Pick**, **Frequency**, **Prize Matrix**, **Jackpot**, **Strategy**, and **Wheel Builder** as needed |
+| 7 | For a local Linux executable, run `chmod +x build_desktop.sh && ./build_desktop.sh` |
+| 8 | For native Windows and macOS artifacts, run the GitHub Actions workflow and download the uploaded build artifacts |
+| 9 | Add more source adapters over time to expand from national games toward broader state and local coverage |
 
 ## References
 
@@ -304,3 +309,4 @@ If you want to get the upgraded version running quickly, use the following seque
 [15]: https://youtube.com/shorts/18otQ2YenUg?si=KXckmF2-TljE40eV "User-supplied YouTube short 2"
 [16]: https://youtube.com/shorts/jUAkNmO43aU?si=b7Su2QzW65fq0QDd "User-supplied YouTube short 3"
 [17]: https://youtube.com/shorts/9hOBiIFPXNU?si=1tS5Xd2atfJXt9-J "User-supplied YouTube short 4"
+[18]: https://pyinstaller.org/en/stable/ "PyInstaller Manual"

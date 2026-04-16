@@ -5,8 +5,11 @@ cd "$(dirname "$0")"
 python3.11 -m PyInstaller \
   --name LotteryEdgeLab \
   --onefile \
-  --noconsole \
+  --windowed \
+  --clean \
+  --noconfirm \
   --paths src \
+  --collect-all customtkinter \
   src/lottery_edge_lab/desktop_app.py
 
 echo "Build complete: dist/LotteryEdgeLab"
