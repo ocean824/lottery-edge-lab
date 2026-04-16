@@ -10,9 +10,10 @@ import pandas as pd
 
 from lottery_edge_lab.cli import candidate_pool_from_history
 from lottery_edge_lab.features.engineering import build_feature_snapshot, history_with_lists
+from lottery_edge_lab.heuristics import describe_profile, get_profile, profile_summary_rows
 from lottery_edge_lab.ingest import load_game_history, sync_game_history
 from lottery_edge_lab.optimization.wheel import abbreviated_wheel, diversified_top_tickets
-from lottery_edge_lab.registry import GameConfig, get_game
+from lottery_edge_lab.registry import get_game
 from lottery_edge_lab.scoring.model import rank_candidates
 
 
@@ -62,12 +63,19 @@ def load_or_sync_history(game_slug: str, limit: int | None = None) -> pd.DataFra
 
 
 
-def smart_pick(game_slug: str, pool_size: int = 12, top: int = 24, ticket_count: int = 6, max_overlap: int = 2) -> pd.DataFrame:
+def smart_pick(
+    game_slug: str,
+    pool_size: int = 12,
+    top: int = 24,
+    ticket_count: int = 6,
+    max_overlap: int = 2,
+    profile_slug: str | None = None,
+) -> pd.DataFrame:
     history = load_or_sync_history(game_slug)
     game = get_game(game_slug)
     pool = candidate_pool_from_history(history, pool_size=max(pool_size, game.main_count + 1))
     candidates = [list(combo) for combo in combinations(sorted(set(pool)), game.main_count)]
-    ranked = rank_candidates(candidates, history).head(top)
+    ranked = rank_candidates(candidates, history, profile_slug=profile_slug).head(top)
     if ranked.empty:
         return ranked
     diversified = diversified_top_tickets(ranked, ticket_count=ticket_count, max_overlap=max_overlap)
@@ -135,6 +143,31 @@ def jackpot_context(game_slug: str) -> JackpotContext:
         jackpot_label=label,
         odds_text=odds_text,
         note="This is a rules-based combinatorial estimate of jackpot odds under the configured game structure. Verify official odds and prize rules with the lottery authority.",
+    )
+
+
+
+def heuristic_profile_table() -> pd.DataFrame:
+    return pd.DataFrame(profile_summary_rows())
+
+
+
+def smart_pick_explainer(profile_slug: str | None = None) -> str:
+    profile = get_profile(profile_slug)
+    return (
+        f"Active profile: {profile.title}\n"
+        f"Description: {profile.description}\n"
+        f"Notes: {profile.notes or 'None'}\n"
+        "This engine uses historical frequency, pair recurrence, collision-risk penalties, and structural heuristics derived from common lottery-analysis workflows. "
+        "These filters are descriptive and portfolio-oriented; they do not predict or alter future draw odds."
+    )
+
+
+
+def ev_watch_text() -> str:
+    return (
+        "Positive-expected-value monitoring is only relevant for rare special-rule games such as capped-jackpot roll-down structures. "
+        "The application can document and monitor those situations, but they should not be confused with general number prediction."
     )
 
 

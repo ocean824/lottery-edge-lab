@@ -1,0 +1,23 @@
+Empirically Grounded
+- The "Roll-Down" Mechanic: The core strategy relies on a specific lottery rule (found in games like Michigan's "Winfall" and Massachusetts' "Cash WinFall"). In these games, if the jackpot reaches a certain cap and no one matches all 6 numbers, the prize money "rolls down" to increase the payouts for lower-tier winners (those matching 3, 4, or 5 numbers).
+- Positive Expected Value (EV): The mathematical foundation of the strategy. The subject calculated that during a roll-down week, the statistical payout of a $1 ticket was actually worth more than $1. 
+- Variance Reduction through Volume: To guarantee a profit and eliminate the factor of "luck," the strategy requires buying hundreds of thousands of tickets. This massive volume ensures that the empirical results align with the statistical probability (the Law of Large Numbers).
+- Syndicate Betting: Pooling money with other investors to amass the massive capital required to buy enough tickets to overcome variance.
+
+Heuristic but Codeable
+- Jackpot Threshold Monitoring: A programmable heuristic that tracks the current jackpot size of specific lottery games and triggers an alert when the jackpot hits the "roll-down" threshold.
+- Expected Value (EV) Calculator: A script that takes the cost of a ticket, the odds of winning each tier, and the current prize pool for each tier, outputting a boolean (True/False) if the EV > Ticket Cost.
+- Bulk Ticket Generation: While the video shows manual purchasing, a codeable heuristic would involve generating combinations to ensure optimal number coverage across hundreds of thousands of tickets, minimizing overlap where possible.
+
+Marketing Claims
+- "Found a mathematical way to beat the lottery."
+- "Cracked the lottery."
+- "A guaranteed win."
+- "A single $1 lottery ticket was worth more than $1 in those final weeks."
+- "Amassed $29 million in profits over the span of 9 years."
+- "An exploitable hole in the lottery's logic."
+
+Implementation Ideas
+- Lottery Rule Scraper: Build a web scraper that constantly reads and analyzes the official rules of all state and national lottery games, specifically flagging games that feature jackpot caps, roll-down mechanics, or fixed-payout anomalies.
+- Real-Time EV Dashboard: Develop an application that tracks current lottery jackpots across the country and calculates the real-time Expected Value of a single ticket for each game, highlighting any game where the EV turns positive.
+- Syndicate Management Software: Create a platform to manage pooled investment funds, track the exact number of tickets purchased, calculate the statistical expected return for a specific draw, and automatically distribute profits to syndicate members based on their initial investment percentage.

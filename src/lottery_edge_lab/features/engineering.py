@@ -39,14 +39,24 @@ def build_feature_snapshot(df: pd.DataFrame) -> dict:
         "pair_frequency": pair_counter,
         "recent_frequency": recent_counter,
         "latest_draw": history.iloc[-1]["main_numbers_list"] if not history.empty else [],
+        "recent_draws": history.tail(10)["main_numbers_list"].tolist() if not history.empty else [],
     }
+
+
+
+def arithmetic_complexity(candidate: list[int]) -> int:
+    ordered = sorted(candidate)
+    diffs = {abs(b - a) for a, b in combinations(ordered, 2) if b != a}
+    expected_minimum = max(len(ordered) - 1, 1)
+    return max(len(diffs) - expected_minimum, 0)
 
 
 
 def candidate_features(candidate: list[int]) -> dict:
     ordered = sorted(candidate)
     odd_count = sum(1 for value in ordered if value % 2 == 1)
-    low_count = sum(1 for value in ordered if value <= (max(ordered) / 2))
+    number_midpoint = (ordered[0] + ordered[-1]) / 2 if ordered else 0
+    low_count = sum(1 for value in ordered if value <= number_midpoint)
     gaps = [b - a for a, b in zip(ordered[:-1], ordered[1:])]
     return {
         "sum": sum(ordered),
@@ -57,4 +67,5 @@ def candidate_features(candidate: list[int]) -> dict:
         "high_count": len(ordered) - low_count,
         "consecutive_pairs": sum(1 for gap in gaps if gap == 1),
         "gap_variance_proxy": sum(abs(gap - (sum(gaps) / len(gaps))) for gap in gaps) if gaps else 0,
+        "ac_value": arithmetic_complexity(ordered),
     }
