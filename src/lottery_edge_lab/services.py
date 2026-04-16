@@ -8,8 +8,7 @@ from typing import Iterable
 
 import pandas as pd
 
-from lottery_edge_lab.cli import candidate_pool_from_history
-from lottery_edge_lab.features.engineering import build_feature_snapshot, history_with_lists
+from lottery_edge_lab.features.engineering import build_feature_snapshot, build_number_score_table, history_with_lists
 from lottery_edge_lab.heuristics import describe_profile, get_profile, profile_summary_rows
 from lottery_edge_lab.ingest import load_game_history, sync_game_history
 from lottery_edge_lab.optimization.wheel import abbreviated_wheel, diversified_top_tickets
@@ -63,6 +62,54 @@ def load_or_sync_history(game_slug: str, limit: int | None = None) -> pd.DataFra
 
 
 
+def likely_number_table(game_slug: str, top: int | None = None) -> pd.DataFrame:
+    game = get_game(game_slug)
+    history = load_or_sync_history(game_slug)
+    score_df = build_number_score_table(history, number_min=game.main_min, number_max=game.main_max)
+    keep_columns = [
+        "number",
+        "weighted_score",
+        "frequency",
+        "recent_frequency",
+        "draws_since_hit",
+        "trend_slope",
+        "momentum",
+        "pair_strength",
+        "crowd_penalty",
+        "notes",
+    ]
+    result = score_df[keep_columns].copy()
+    result["weighted_score"] = result["weighted_score"].round(6)
+    result["trend_slope"] = result["trend_slope"].round(6)
+    result["momentum"] = result["momentum"].round(6)
+    result["pair_strength"] = result["pair_strength"].round(4)
+    result["crowd_penalty"] = result["crowd_penalty"].round(4)
+    if top is not None:
+        return result.head(top).reset_index(drop=True)
+    return result.reset_index(drop=True)
+
+
+
+def candidate_pool_from_weighted_history(game_slug: str, pool_size: int = 12, profile_slug: str | None = None) -> list[int]:
+    history = load_or_sync_history(game_slug)
+    game = get_game(game_slug)
+    profile = get_profile(profile_slug)
+    number_scores = build_number_score_table(history, number_min=game.main_min, number_max=game.main_max)
+
+    ranked_numbers = number_scores["number"].tolist()
+    base_pool = ranked_numbers[: max(pool_size, game.main_count + 1)]
+
+    if profile.slug == "coverage":
+        tail_candidates = ranked_numbers[max(pool_size, game.main_count + 1) : max(pool_size + 4, game.main_count + 4)]
+        for value in tail_candidates:
+            if value not in base_pool:
+                base_pool.append(value)
+        base_pool = base_pool[: max(pool_size, game.main_count + 2)]
+
+    return sorted(base_pool)
+
+
+
 def smart_pick(
     game_slug: str,
     pool_size: int = 12,
@@ -73,7 +120,7 @@ def smart_pick(
 ) -> pd.DataFrame:
     history = load_or_sync_history(game_slug)
     game = get_game(game_slug)
-    pool = candidate_pool_from_history(history, pool_size=max(pool_size, game.main_count + 1))
+    pool = candidate_pool_from_weighted_history(game_slug, pool_size=max(pool_size, game.main_count + 1), profile_slug=profile_slug)
     candidates = [list(combo) for combo in combinations(sorted(set(pool)), game.main_count)]
     ranked = rank_candidates(candidates, history, profile_slug=profile_slug).head(top)
     if ranked.empty:
@@ -158,8 +205,17 @@ def smart_pick_explainer(profile_slug: str | None = None) -> str:
         f"Active profile: {profile.title}\n"
         f"Description: {profile.description}\n"
         f"Notes: {profile.notes or 'None'}\n"
-        "This engine uses historical frequency, pair recurrence, collision-risk penalties, and structural heuristics derived from common lottery-analysis workflows. "
-        "These filters are descriptive and portfolio-oriented; they do not predict or alter future draw odds."
+        "This engine now blends long-run frequency, recent heat, recency gaps, trend slope, EWMA momentum, pair recurrence, collision-risk penalties, and structural heuristics. "
+        "These signals are mathematically weighted and explainable, but they still do not predict or alter future draw odds."
+    )
+
+
+
+def likely_number_explainer(profile_slug: str | None = None) -> str:
+    return (
+        f"Likely-number model context: {describe_profile(profile_slug)}\n"
+        "Numbers are ranked by a weighted signal model that combines historical frequency, recent activity, regression-style trend slope, momentum, co-occurrence strength, gap behavior, and crowding risk. "
+        "This is a descriptive ranking view under the current model, not a guarantee of future appearance."
     )
 
 

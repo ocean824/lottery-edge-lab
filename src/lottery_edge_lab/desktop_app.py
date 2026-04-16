@@ -14,6 +14,8 @@ from lottery_edge_lab.services import (
     heuristic_profile_table,
     jackpot_context,
     latest_results_table,
+    likely_number_explainer,
+    likely_number_table,
     quick_pick,
     smart_pick,
     smart_pick_explainer,
@@ -105,6 +107,7 @@ class LotteryEdgeDesktop(tk.Tk):
 
         self.history_text = self._make_text_tab("Latest Results")
         self.frequency_text = self._make_text_tab("Frequency Chart")
+        self.likely_numbers_text = self._make_text_tab("Likely Numbers")
         self.smart_pick_text = self._make_text_tab("Smart Pick")
         self.quick_pick_text = self._make_text_tab("Quick Pick")
         self.prize_text = self._make_text_tab("Prize Matrix")
@@ -185,6 +188,7 @@ class LotteryEdgeDesktop(tk.Tk):
             self.refresh_game_summary()
             self._render_history(slug)
             self._render_frequency(slug)
+            self._render_likely_numbers(slug)
             self._render_smart_pick(slug)
             self._render_quick_pick(slug)
             self._render_prize_matrix(slug)
@@ -205,6 +209,15 @@ class LotteryEdgeDesktop(tk.Tk):
         df = frequency_table(slug).head(30)
         heading = "Top historical frequencies and recent appearances\n\n"
         self._replace_text(self.frequency_text, heading + (df.to_string(index=False) if not df.empty else "No frequency data available."))
+
+    def _render_likely_numbers(self, slug: str) -> None:
+        if analysis_availability(slug) != "full":
+            self._replace_text(self.likely_numbers_text, "Weighted likely-number ranking is not enabled for this game yet. Add a structured history connector to unlock number-level scoring.")
+            return
+        profile_slug = self.selected_profile.get()
+        df = likely_number_table(slug, top=max(self.pool_size.get(), 15))
+        prefix = likely_number_explainer(profile_slug) + "\n\n"
+        self._replace_text(self.likely_numbers_text, prefix + (df.to_string(index=False) if not df.empty else "No likely-number ranking available."))
 
     def _render_smart_pick(self, slug: str) -> None:
         if analysis_availability(slug) != "full":

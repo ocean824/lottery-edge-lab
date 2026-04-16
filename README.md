@@ -44,7 +44,8 @@ The repository has been upgraded so it can function as an **executable desktop a
 | --- | --- |
 | Jurisdiction and game browser | Browse national and state-oriented games from a registry-driven catalog |
 | Latest results | View the latest normalized draw history records for the selected game |
-| Smart Pick | Generate statistically ranked combinations using transparent heuristics |
+| Likely Numbers | Rank individual numbers for the selected game using a weighted mathematical signal model |
+| Smart Pick | Generate statistically ranked combinations assembled from the weighted likely-number pool |
 | Quick Pick | Generate valid random combinations under the selected game rules |
 | Frequency Chart | View top historical frequencies and export a chart image |
 | Prize Matrix | Inspect game-structure metadata and prize-context notes |
@@ -127,7 +128,11 @@ The analytical workflow is organized into several complementary layers.
 
 ### Historical-pattern ranking
 
-The ranking engine computes descriptive features from historical draws, including single-number frequency, pair co-occurrence, recency pressure, odd-even balance, sum ranges, spacing, spread, and AC-style structural complexity. Those features do **not** prove that future fair draws become predictable. They are used as a transparent ranking heuristic that can be backtested and revised.
+The ranking engine now works at both the **number level** and the **combination level**. It computes descriptive features from historical draws, including single-number frequency, pair co-occurrence, recency pressure, odd-even balance, sum ranges, spacing, spread, and AC-style structural complexity. It also adds a weighted number-ranking layer that blends long-run frequency, recent heat, draws-since-hit behavior, linear-trend slope over rolling hit activity, exponentially weighted momentum, pair-strength centrality, and a soft crowding-risk adjustment. Those features do **not** prove that future fair draws become predictable. They are used as a transparent ranking heuristic that can be backtested and revised.
+
+### Likely-number ranking
+
+The application now presents a dedicated **Likely Numbers** view for supported games. This view ranks each main-field number by a weighted score derived from historical activity and explainable mathematical signals. In practical terms, this gives the user a clearer answer to the question, “Which numbers currently score strongest under the active model?” The resulting number table then feeds the smart-pick candidate pool, so combination ranking is no longer built from raw frequency alone.
 
 ### Collision-risk scoring
 
@@ -182,9 +187,10 @@ The command-line entry point is still available and remains useful for scripted 
 | Command | Purpose | Example |
 | --- | --- | --- |
 | `sync` | Fetch and store normalized draw history | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli sync --game megamillions --limit 80` |
-| `rank` | Rank candidate combinations from a historical pool | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli rank --game powerball --pool-size 10 --top 20` |
-| `recommend` | Produce diversified recommended tickets | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli recommend --game megamillions --pool-size 10 --ticket-count 5` |
-| `backtest` | Run a rolling backtest on ranked candidates | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli backtest --game megamillions --pool-size 10 --top-n 10 --train-window 30` |
+| `numbers` | Show the weighted likely-number ranking for a game | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli numbers --game powerball --top 15` |
+| `rank` | Rank candidate combinations from the weighted likely-number pool | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli rank --game powerball --pool-size 10 --top 20 --profile balanced` |
+| `recommend` | Produce diversified recommended tickets | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli recommend --game megamillions --pool-size 10 --ticket-count 5 --profile balanced` |
+| `backtest` | Run a rolling backtest on ranked candidates | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli backtest --game megamillions --pool-size 10 --top-n 10 --train-window 30 --profile balanced` |
 | `wheel` | Build an abbreviated wheel from a custom number pool | `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli wheel --pool 3,7,12,18,23,29,33 --ticket-size 5 --limit 12` |
 
 ## Running the desktop application
@@ -201,7 +207,7 @@ or
 PYTHONPATH=src lottery-edge-desktop
 ```
 
-The application will open a desktop window that includes the game browser, actions panel, results tabs, smart-pick view, quick-pick view, prize matrix, jackpot analysis, strategy profile view, wheel builder, and compliance notice.
+The application will open a desktop window that includes the game browser, actions panel, results tabs, a **Likely Numbers** view, smart-pick view, quick-pick view, prize matrix, jackpot analysis, strategy profile view, wheel builder, and compliance notice.
 
 ## Building the executable
 
@@ -237,6 +243,7 @@ The upgraded repository was validated in practical ways during development, incl
 | --- | --- |
 | Existing smoke tests | Passed |
 | Desktop application import | Passed |
+| Weighted likely-number service smoke test | Passed |
 | Heuristic profile service smoke test | Passed |
 | AC-value feature computation | Passed |
 | Frequency-chart export | Passed in prior executable-upgrade validation |
@@ -274,7 +281,7 @@ If you want to get the upgraded version running quickly, use the following seque
 | 3 | Sync a live-supported game such as Mega Millions with `PYTHONPATH=src python3.11 -m lottery_edge_lab.cli sync --game megamillions --limit 80` |
 | 4 | Launch the app with `PYTHONPATH=src python3.11 -m lottery_edge_lab.desktop_app` |
 | 5 | In the app, choose a game, pick a heuristic profile, and review the disclaimer |
-| 6 | Use **Smart Pick**, **Quick Pick**, **Frequency Chart**, **Prize Matrix**, **Jackpot Analysis**, **Strategy Profiles**, and **Wheel Builder** as needed |
+| 6 | Use **Likely Numbers**, **Smart Pick**, **Quick Pick**, **Frequency Chart**, **Prize Matrix**, **Jackpot Analysis**, **Strategy Profiles**, and **Wheel Builder** as needed |
 | 7 | When ready to package it, run `chmod +x build_desktop.sh && ./build_desktop.sh` to generate the desktop executable |
 | 8 | Add more source adapters over time to expand from national games toward broader state and local coverage |
 

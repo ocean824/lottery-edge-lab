@@ -20,6 +20,24 @@ def collision_risk_score(candidate: list[int]) -> float:
 
 
 
+def _number_score_lookup(snapshot: dict) -> dict[int, dict]:
+    number_scores = snapshot.get("number_scores")
+    if number_scores is None or getattr(number_scores, "empty", True):
+        return {}
+    return {
+        int(row["number"]): {
+            "weighted_score": float(row["weighted_score"]),
+            "trend_score": float(row["trend_score"]),
+            "momentum_score": float(row["momentum_score"]),
+            "pair_score": float(row["pair_score"]),
+            "crowd_risk_score": float(row["crowd_risk_score"]),
+            "overdue_score": float(row["overdue_score"]),
+        }
+        for _, row in number_scores.iterrows()
+    }
+
+
+
 def heuristic_profile_score(candidate: list[int], snapshot: dict, profile: HeuristicProfile) -> tuple[float, list[str]]:
     features = candidate_features(candidate)
     score = 0.0
@@ -93,6 +111,7 @@ def historical_pattern_score(candidate: list[int], snapshot: dict, profile_slug:
     pair_frequency = snapshot["pair_frequency"]
     recent_frequency = snapshot["recent_frequency"]
     draw_count = max(snapshot["draw_count"], 1)
+    lookup = _number_score_lookup(snapshot)
 
     freq_score = sum(main_frequency.get(number, 0) / draw_count for number in candidate)
     pair_score = sum(pair_frequency.get(tuple(sorted(pair)), 0) / draw_count for pair in combinations(candidate, 2))
@@ -109,15 +128,41 @@ def historical_pattern_score(candidate: list[int], snapshot: dict, profile_slug:
         structure_bonus += 0.2
     if features["range"] >= 25:
         structure_bonus += 0.15
+    if features["terminal_diversity"] >= max(3, len(candidate) - 1):
+        structure_bonus += 0.08
+
+    weighted_number_score = sum(lookup.get(number, {}).get("weighted_score", 0.0) for number in candidate)
+    trend_score = sum(lookup.get(number, {}).get("trend_score", 0.0) for number in candidate)
+    momentum_score = sum(lookup.get(number, {}).get("momentum_score", 0.0) for number in candidate)
+    pair_density_score = sum(lookup.get(number, {}).get("pair_score", 0.0) for number in candidate)
+    crowd_bonus = sum(lookup.get(number, {}).get("crowd_risk_score", 0.0) for number in candidate) * 0.15
 
     heuristic_score, notes = heuristic_profile_score(candidate, snapshot, profile)
-    total = round(freq_score + pair_score + structure_bonus + heuristic_score - recency_penalty, 6)
+    total = round(
+        freq_score
+        + pair_score
+        + structure_bonus
+        + heuristic_score
+        + (weighted_number_score * 0.55)
+        + (trend_score * 0.20)
+        + (momentum_score * 0.20)
+        + (pair_density_score * 0.10)
+        + crowd_bonus
+        - recency_penalty,
+        6,
+    )
     return total, notes
 
 
 
 def rank_candidates(candidates: list[list[int]], history_df: pd.DataFrame, profile_slug: str | None = None) -> pd.DataFrame:
-    snapshot = build_feature_snapshot(history_df)
+    if candidates:
+        min_number = min(min(candidate) for candidate in candidates)
+        max_number = max(max(candidate) for candidate in candidates)
+    else:
+        min_number = None
+        max_number = None
+    snapshot = build_feature_snapshot(history_df, number_min=min_number, number_max=max_number)
     ranked_rows = []
     for candidate in candidates:
         ordered = sorted(candidate)
